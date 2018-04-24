@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gdutjunming.www.dao.StudentDao">
+    <select id="findStudentByStudentId" resultMap="StudentMap">
+        SELECT
+            student.*,
+            class.id AS classId,
+            class.class_name
+        FROM student, class
+        WHERE student.id = #{id}
+              AND student.class_id = class.id
+    </select>
+
+    <resultMap id="StudentMap" type="com.gdutjunming.www.model.Student">
+        <id column="id" property="id"/>
+        <result column="student_name" property="studentName"/>
+        <result column="sex" property="sex"/>
+        <result column="chinese_score" property="chineseScore"/>
+        <result column="math_score" property="mathScore"/>
+        <result column="english_score" property="englishScore"/>
+        <association property="aClass" javaType="com.gdutjunming.www.model.Class">
+            <id column="classId" property="id"/>
+            <result column="class_name" property="className"/>
+        </association>
+    </resultMap>
+
+    <insert id="addStudent" useGeneratedKeys="true" keyProperty="id"
+            parameterType="com.gdutjunming.www.model.Student">
+        INSERT INTO
+            student (id, student_name, sex, class_id, chinese_score, math_score, english_score)
+        VALUES (#{id}, #{studentName}, #{sex}, #{aClass.id}, #{chineseScore}, #{mathScore}, #{englishScore})
+    </insert>
+
+    <insert id="addClass" useGeneratedKeys="true" keyProperty="id"
+            parameterType="com.gdutjunming.www.model.Class">
+        INSERT
+        INTO class (class_name)
+        VALUES (#{className})
+    </insert>
+
+    <select id="getStudentCount" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM student
+    </select>
+
+    <select id="getStudentCountByStudentId" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM student
+        WHERE id = #{studentId}
+    </select>
+
+    <select id="getStudentCountByStudentName" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM student
+        WHERE student_name LIKE CONCAT(CONCAT('%', #{studentName}), '%')
+    </select>
+
+    <select id="getStudentCountByClassId" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM student
+        WHERE class_id = #{classId}
+    </select>
+
+    <select id="selectStudent" resultMap="StudentMap">
+        SELECT
+            student.*,
+            class.id AS classId,
+            class.class_name
+        FROM
+            student, class
+        WHERE
+            student.class_id = class.id
+        ORDER BY student.id
+        LIMIT #{page}, #{pageSize}
+    </select>
+
+    <delete id="deleteStudentByStudentId" flushCache="true">
+        DELETE
+        FROM student
+        WHERE id = #{studentId}
+    </delete>
+
+    <update id="updateStudentInfo" flushCache="true">
+        UPDATE student
+        SET student_name = #{studentName}, sex = #{sex},
+            class_id     = #{aClass.id}, chinese_score = #{chineseScore},
+            math_score   = #{mathScore}, english_score = #{englishScore}
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectStudentByStudentId" resultMap="StudentMap">
+        SELECT
+            student.*,
+            class.id AS classId,
+            class.class_name
+        FROM
+            student, class
+        WHERE
+            student.class_id = class.id
+            AND student.id = #{studentId}
+        ORDER BY student.id
+        LIMIT #{page}, #{pageSize}
+    </select>
+
+    <select id="selectStudentByStudentName" resultMap="StudentMap">
+        SELECT
+            student.*,
+            class.id AS classId,
+            class.class_name
+        FROM
+            student, class
+        WHERE
+            student.class_id = class.id
+            AND student_name LIKE CONCAT(CONCAT('%', #{studentName}), '%')
+        ORDER BY student.id
+        LIMIT #{page}, #{pageSize}
+    </select>
+
+
+    <select id="selectStudentByClassId" resultType="com.gdutjunming.www.model.Student">
+        SELECT *
+        FROM
+            student
+        WHERE
+            student.class_id = #{classId}
+        ORDER BY student.id
+        LIMIT #{page}, #{pageSize}
+    </select>
+
+    <select id="selectClassByClassName" resultType="com.gdutjunming.www.model.Class">
+        SELECT *
+        FROM class
+        WHERE class_name = #{className}
+    </select>
+
+    <select id="sortByChineseScore" resultMap="StudentMap">
+        SELECT
+            student.*,
+            class.id AS classId,
+            class.class_name
+        FROM
+            student, class
+        WHERE
+            student.class_id = class.id
+        ORDER BY student.chinese_score
+        DESC
+        LIMIT #{page}, #{pageSize}
+    </select>
+
+    <select id="sortByMathScore" resultMap="StudentMap">
+        SELECT
+            student.*,
+            class.id AS classId,
+            class.class_name
+        FROM
+            student, class
+        WHERE
+            student.class_id = class.id
+        ORDER BY student.math_score
+        DESC
+        LIMIT #{page}, #{pageSize}
+    </select>
+
+    <select id="sortByEnglishScore" resultMap="StudentMap">
+        SELECT
+            student.*,
+            class.id AS classId,
+            class.class_name
+        FROM
+            student, class
+        WHERE
+            student.class_id = class.id
+        ORDER BY student.english_score
+        DESC
+        LIMIT #{page}, #{pageSize}
+    </select>
+    <select id="sortByTotalScore" resultMap="StudentMap">
+        SELECT
+            student.*,
+            class.id AS classId,
+            class.class_name
+        FROM
+            student, class
+        WHERE
+            student.class_id = class.id
+        ORDER BY student.chinese_score + student.math_score + student.english_score
+        DESC
+        LIMIT #{page}, #{pageSize}
+    </select>
+
+    <select id="sortByAvgScore" resultMap="StudentMap">
+        SELECT
+            student.*,
+            class.id AS classId,
+            class.class_name
+        FROM
+            student, class
+        WHERE
+            student.class_id = class.id
+        ORDER BY (student.chinese_score + student.math_score + student.english_score) / 3
+        DESC
+        LIMIT #{page}, #{pageSize}
+    </select>
+
+    <select id="selectChineseHighestScore" resultMap="StudentMap">
+        SELECT
+            student.*,
+            class.id AS classId,
+            class.class_name
+        FROM
+            student, class
+        WHERE
+            student.class_id = class.id AND
+            student.chinese_score = (SELECT MAX(chinese_score)
+                                     FROM student)
+        ORDER BY student.id
+    </select>
+    <select id="selectMathHighestScore" resultMap="StudentMap">
+        SELECT
+            student.*,
+            class.id AS classId,
+            class.class_name
+        FROM
+            student, class
+        WHERE
+            student.class_id = class.id AND
+            student.math_score = (SELECT MAX(math_score)
+                                  FROM student)
+        ORDER BY student.id
+    </select>
+    <select id="selectEnglishHighestScore" resultMap="StudentMap">
+        SELECT
+            student.*,
+            class.id AS classId,
+            class.class_name
+        FROM
+            student, class
+        WHERE
+            student.class_id = class.id AND
+            student.english_score = (SELECT MAX(english_score)
+                                     FROM student)
+        ORDER BY student.id
+    </select>
+
+    <select id="selectChineseMinimumScore" resultMap="StudentMap">
+        SELECT
+            student.*,
+            class.id AS classId,
+            class.class_name
+        FROM
+            student, class
+        WHERE
+            student.class_id = class.id AND
+            student.chinese_score = (SELECT MIN(chinese_score)
+                                     FROM student)
+        ORDER BY student.id
+    </select>
+    <select id="selectMathMinimumScore" resultMap="StudentMap">
+        SELECT
+            student.*,
+            class.id AS classId,
+            class.class_name
+        FROM
+            student, class
+        WHERE
+            student.class_id = class.id AND
+            student.math_score = (SELECT MIN(math_score)
+                                  FROM student)
+        ORDER BY student.id
+    </select>
+    <select id="selectEnglishMinimumScore" resultMap="StudentMap">
+        SELECT
+            student.*,
+            class.id AS classId,
+            class.class_name
+        FROM
+            student, class
+        WHERE
+            student.class_id = class.id AND
+            student.english_score = (SELECT MIN(english_score)
+                                     FROM student)
+        ORDER BY student.id
+    </select>
+
+    <select id="selectAllClass" resultType="com.gdutjunming.www.model.Class">
+        SELECT *
+        FROM class
+    </select>
+
+    <select id="selectStudentByClassIdAndChinese" resultType="com.gdutjunming.www.model.Student">
+        SELECT *
+        FROM
+            student
+        WHERE
+            student.class_id = #{classId}
+        ORDER BY student.chinese_score DESC
+    </select>
+
+    <select id="selectStudentByClassIdAndMath" resultType="com.gdutjunming.www.model.Student">
+        SELECT *
+        FROM
+            student
+        WHERE
+            student.class_id = #{classId}
+        ORDER BY student.math_score DESC
+    </select>
+
+    <select id="selectStudentByClassIdAndEnglish" resultType="com.gdutjunming.www.model.Student">
+        SELECT *
+        FROM
+            student
+        WHERE
+            student.class_id = #{classId}
+        ORDER BY student.english_score DESC
+    </select>
+</mapper>
